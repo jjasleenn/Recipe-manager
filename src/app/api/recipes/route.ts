@@ -2,14 +2,12 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// =======================
-// CREATE RECIPE (POST)
-// =======================
+
 export async function POST(req: Request) {
   console.log("POST /api/recipes HIT");
 
   try {
-    // ✅ FIX: Clerk auth is async
+    
     const authResult = await auth();
     const userId = authResult.userId;
 
@@ -23,7 +21,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { title, description, ingredients } = body;
 
-    // ✅ Validate input
     if (
       !title ||
       !description ||
@@ -36,7 +33,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ Ensure user exists in DB (prevents FK error)
     await prisma.user.upsert({
       where: { id: userId },
       update: {},
@@ -47,7 +43,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // ✅ Create recipe
     const recipe = await prisma.recipe.create({
       data: {
         title,
@@ -80,9 +75,6 @@ export async function POST(req: Request) {
   }
 }
 
-// =======================
-// GET ALL RECIPES
-// =======================
 export async function GET() {
   try {
     const recipes = await prisma.recipe.findMany({
